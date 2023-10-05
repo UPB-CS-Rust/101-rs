@@ -1,0 +1,293 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>P Final project - Rust 101 - Exercises</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../0-install/mod.html"><strong aria-hidden="true">1.</strong> 0 - Installation</a></li><li class="chapter-item expanded "><a href="../A1-language-basics/mod.html"><strong aria-hidden="true">2.</strong> A1 - Language basics</a></li><li class="chapter-item expanded "><a href="../A2-advanced-intro/mod.html"><strong aria-hidden="true">3.</strong> A2 - Advanced Syntax, Ownership, references</a></li><li class="chapter-item expanded "><a href="../A3-traits-generics/mod.html"><strong aria-hidden="true">4.</strong> A3 - Traits and generics</a></li><li class="chapter-item expanded "><a href="../B-application-programming/mod.html"><strong aria-hidden="true">5.</strong> B - Application programming</a></li><li class="chapter-item expanded "><a href="../C-concurrency-parallelism/mod.html"><strong aria-hidden="true">6.</strong> C - Concurrency & Parallelism</a></li><li class="chapter-item expanded "><a href="../D-trait-objects-patterns/mod.html"><strong aria-hidden="true">7.</strong> D - Trait objects and Rust patterns</a></li><li class="chapter-item expanded "><a href="../E-async-web/mod.html"><strong aria-hidden="true">8.</strong> E - Async and Rust for Web</a></li><li class="chapter-item expanded "><a href="../F-safe-unsafe/mod.html"><strong aria-hidden="true">9.</strong> F - Safe Unsafe Rust</a></li><li class="chapter-item expanded "><a href="../G-ffi/mod.html"><strong aria-hidden="true">10.</strong> G - FFI and Dynamic modules</a></li><li class="chapter-item expanded "><a href="../P-final-project/mod.html" class="active"><strong aria-hidden="true">11.</strong> P Final project</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust 101 - Exercises</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="module-p---final-project"><a class="header" href="#module-p---final-project">Module P - Final project</a></h1>
+<p>It is time to submit a proposal for the final project.</p>
+<ul>
+<li>Form groups of 2 or 3 people. <em>Working solo is not permitted</em>.</li>
+<li>Build a small Rust project yourselves</li>
+<li>Up to 2 groups can work on the same topic</li>
+</ul>
+<h2 id="proposal"><a class="header" href="#proposal">Proposal</a></h2>
+<p>The proposal needs to be submitted by <em>30th of March, 2023</em> by opening a Github repo, placing your proposal there, and either making it public or granting access to <a href="https://github.com/hdoordt/"><code>@hdoordt</code></a>. Then, please send Henk a link to the repository via Discord so we know where to find it.</p>
+<p>The proposal must contain the following sections:</p>
+<ul>
+<li>Your names and Discord handles used in the Rust 101 Discord server</li>
+<li>Introduction to your idea. What general problem does it solve? What do you hope to learn?</li>
+<li>Requirements in brief. Just some bullet points on what your application or library should be able to do in order for the project to be deemed successful. Half a page maximum.</li>
+<li>The dependencies you want to use (use <a href="https://lib.rs">https://lib.rs</a> to discover crates)</li>
+<li>Optional: A rudimentary diagram of the architecture</li>
+</ul>
+<p>Of course, if you want to discuss your idea before handing in your proposal, or if you have any other questions, please reach out via Discord.</p>
+<p>Any reparations to the proposals must be handed in on the <em>6th of April 2023</em></p>
+<h2 id="final-product"><a class="header" href="#final-product">Final product</a></h2>
+<p>At the end of the project following will be required (deadline is the <em>4th of May, 2023</em>)</p>
+<ul>
+<li>The source of your project (GitHub)</li>
+<li>A live 10 minute presentation, including a <em>short</em> demonstration (and an additional 2 minutes for questions) during the final lecture</li>
+<li>A small report on what you did (3 pages max). It contains the following sections:
+<ul>
+<li>Introduction to your idea</li>
+<li>Requirements in more detail (not too detailed, though)</li>
+<li>Design diagram. Keep it high-level</li>
+<li>Design choices. What choices did you make, what were alternatives, and why did you choose the way you did?</li>
+<li>Dependencies and what they're used for</li>
+<li>Evaluation. What went well? What went not so well? How does implmementing a bigger project in Rust feel compared to other languages?</li>
+</ul>
+</li>
+</ul>
+<h2 id="project-suggestions"><a class="header" href="#project-suggestions">Project suggestions</a></h2>
+<p>You are encouraged to suggest your own project, here are some suggestions. We will add more ideas as they come up.</p>
+<ul>
+<li>Use a popular crate to build something
+<ul>
+<li>tokio (network applications)</li>
+<li>bitvec (lowlevel binary protocols)</li>
+<li>bevy (games)</li>
+<li>a serializer/deserializer using Serde</li>
+<li>RTIC or Embassy (embedded applications)</li>
+</ul>
+</li>
+<li>Build a GUI application (<a href="https://www.areweguiyet.com/">https://www.areweguiyet.com/</a>)</li>
+<li>Build Rust markdown-to-slide-deck renderer, as an alternative to sli.dev that we've been using</li>
+<li>Implement a more complex data structure
+<ul>
+<li>implement and benchmark a doubly linked list</li>
+<li>benchmark the ntpd-rs ipfilter <a href="https://github.com/pendulum-project/ntpd-rs/blob/main/ntp-daemon/src/ipfilter.rs">https://github.com/pendulum-project/ntpd-rs/blob/main/ntp-daemon/src/ipfilter.rs</a></li>
+<li>add &quot;seamless slices&quot; to the Rust implementation of <code>RocList</code> (ask Folkert)</li>
+<li>Image renderer and manipulator (PNG, SVG)</li>
+<li>Implement a simple HTTP1 static file server on raw TCP sockets</li>
+</ul>
+</li>
+<li>Programming languages
+<ul>
+<li>an interpreter for False (<a href="https://strlen.com/false-language/">https://strlen.com/false-language/</a>)</li>
+<li>an interpreter for (a subset of) webassembly</li>
+<li>contribute to Roc (Folkert is a maintainer and will help you)</li>
+<li>An implementation of Lox (<a href="https://craftinginterpreters.com/">https://craftinginterpreters.com/</a>)</li>
+</ul>
+</li>
+<li>Develop a simple OS (<a href="https://os.phil-opp.com/">https://os.phil-opp.com/</a>)</li>
+<li>Make an open source contribution
+NOTE: make sure your contribution has a good chance of being accepted; don't just create extra work for project maintainers 
+<ul>
+<li>update inkwell's kaleidoscope example so it also works with llvm 15 <a href="https://github.com/TheDan64/inkwell/blob/master/examples/kaleidoscope/main.rs#L199">https://github.com/TheDan64/inkwell/blob/master/examples/kaleidoscope/main.rs#L199</a></li>
+</ul>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../G-ffi/mod.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../G-ffi/mod.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
