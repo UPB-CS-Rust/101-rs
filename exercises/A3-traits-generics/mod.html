@@ -1,0 +1,383 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>A3 - Traits and generics - Rust 101 - Exercises</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../0-install/mod.html"><strong aria-hidden="true">1.</strong> 0 - Installation</a></li><li class="chapter-item expanded "><a href="../A1-language-basics/mod.html"><strong aria-hidden="true">2.</strong> A1 - Language basics</a></li><li class="chapter-item expanded "><a href="../A2-advanced-intro/mod.html"><strong aria-hidden="true">3.</strong> A2 - Advanced Syntax, Ownership, references</a></li><li class="chapter-item expanded "><a href="../A3-traits-generics/mod.html" class="active"><strong aria-hidden="true">4.</strong> A3 - Traits and generics</a></li><li class="chapter-item expanded "><a href="../B-application-programming/mod.html"><strong aria-hidden="true">5.</strong> B - Application programming</a></li><li class="chapter-item expanded "><a href="../C-concurrency-parallelism/mod.html"><strong aria-hidden="true">6.</strong> C - Concurrency & Parallelism</a></li><li class="chapter-item expanded "><a href="../D-trait-objects-patterns/mod.html"><strong aria-hidden="true">7.</strong> D - Trait objects and Rust patterns</a></li><li class="chapter-item expanded "><a href="../E-async-web/mod.html"><strong aria-hidden="true">8.</strong> E - Async and Rust for Web</a></li><li class="chapter-item expanded "><a href="../F-safe-unsafe/mod.html"><strong aria-hidden="true">9.</strong> F - Safe Unsafe Rust</a></li><li class="chapter-item expanded "><a href="../G-ffi/mod.html"><strong aria-hidden="true">10.</strong> G - FFI and Dynamic modules</a></li><li class="chapter-item expanded "><a href="../P-final-project/mod.html"><strong aria-hidden="true">11.</strong> P Final project</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust 101 - Exercises</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="module-a3---traits-and-generics"><a class="header" href="#module-a3---traits-and-generics">Module A3 - Traits and generics</a></h1>
+<p><a href="/slides/A3/">Slides</a> (or <a href="/slides/A3-traits-generics.pdf">pdf</a>)</p>
+<h2 id="a3-local-storage-vec"><a class="header" href="#a3-local-storage-vec">A3 Local Storage Vec</a></h2>
+<p>In this exercise, we'll create a type called <code>LocalStorageVec</code>, which is generic list of items that resides either on the stack or the heap, depending on its size. If its size is small enough for items to be put on the stack, the <code>LocalStorageVec</code> buffer is backed by an array. <code>LocalStorageVec</code> is not only generic over the type  (<code>T</code>) of items in the list, but also by the size (<code>N</code>) of this stack-located array using a relatively new feature called <a href="https://doc.rust-lang.org/reference/items/generics.html#const-generics">&quot;const generics&quot;</a>. Once the <code>LocalStorageVec</code> contains more items than fit in the array, a heap based <a href="https://doc.rust-lang.org/std/vec/struct.Vec.html"><code>Vec</code></a> is allocated as space for the items to reside in.</p>
+<p><strong>Within this exercise, the objectives are annotated with a number of stars (⭐), indicating the difficulty. You are likely not to be able to finish all exercises during the tutorial session</strong></p>
+<p><strong>Questions</strong></p>
+<ol>
+<li>When is such a data structure more efficient than a standard <code>Vec</code>?</li>
+<li>What are the downsides, compared to just using a <code>Vec</code>?</li>
+</ol>
+<p>Open the <code>exercises/A3/2-local-storage-vec</code> crate. It contains a <code>src/lib.rs</code> file, meaning this crate is a library. <code>lib.rs</code> contains a number of tests, which can be run by calling <code>cargo test</code>. Don't worry if they don't pass or even compile right now: it's your job to fix that in this exercise. Most of the tests are commented out right now, to enable a step-by-step approach. <strong>Before you begin, have a look at the code and the comments in there, they contain various helpful clues.</strong></p>
+<h3 id="a3a-defining-the-type-"><a class="header" href="#a3a-defining-the-type-">A3.A Defining the type ⭐</a></h3>
+<p>Currently, the <code>LocalStorageVec</code> <code>enum</code> is incomplete. Give it two variants: <code>Stack</code> and <code>Heap</code>. <code>Stack</code> contains two named fields, <code>buf</code> and <code>len</code>. <code>buf</code> will be the array with a capacity to hold <code>N</code> items of type <code>T</code>; <code>len</code> is a field of type <code>usize</code> that will denote the amount of items actually stored. The <code>Heap</code> variant has an unnamed field containing a <code>Vec&lt;T&gt;</code>. If you've defined the <code>LocalStorageVec</code> variants correctly, running <code>cargo test</code> should output something like</p>
+<pre><code class="language-txt">running 1 test
+test test::it_compiles ... ignored, This test is just to validate the definition of `LocalStorageVec`. If it compiles, all is OK
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+</code></pre>
+<p>This test does (and should) not run, but is just there for checking your variant definition.</p>
+<details>
+    <summary><b>Hint 1</b></summary>
+    You may be able to reverse-engineer the `LocalStorageVec` definition using the code of the `it_compiles` test case.
+</details>
+<br/>
+<details>
+    <summary><b>Hint 2 (If you got stuck, but try to resist me for a while)</b></summary>
+<p>Below definition works. Read the code comments and make sure you understand what's going on.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Define an enum `LocalStorageVec` that is generic over
+// type `T` and a constant `N` of type `usize`
+pub enum LocalStorageVec&lt;T, const N: usize&gt; {
+    // Define a struct-like variant called `Stack` containing two named fields:
+    // - `buf` is an array with elements of `T` of size `N`
+    // - `len` is a field of type `usize`
+    Stack { buf: [T; N], len: usize },
+    // Define a tuple-like variant called `Heap`, containing a single field
+    // of type `Vec&lt;T&gt;`, which is a heap-based growable, contiguous list of `T`
+    Heap(Vec&lt;T&gt;),
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<h3 id="a3b-impl-ing-fromvect-"><a class="header" href="#a3b-impl-ing-fromvect-">A3.B <code>impl</code>-ing <code>From&lt;Vec&lt;T&gt;&gt;</code> ⭐</a></h3>
+<p>Uncomment the test <code>it_from_vecs</code>, and add an implementation for <code>From&lt;Vec&lt;T&gt;&gt;</code> to <code>LocalStorageVec&lt;T&gt;</code>. To do so, copy the following code in your <code>lib.rs</code> file and replace the <code>todo!</code> macro invocation with your code that creates a heap-based <code>LocalStorageVec</code> containing the passed <code>Vec&lt;T&gt;</code>.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;T, const N: usize&gt; From&lt;Vec&lt;T&gt;&gt; for LocalStorageVec&lt;T, N&gt; {
+    fn from(v: Vec&lt;T&gt;) -&gt; Self {
+        todo!(&quot;Implement me&quot;);
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Question</strong> </p>
+<ol>
+<li>How would you pronounce the first line of the code you just copied in English?*</li>
+</ol>
+<p>Run <code>cargo test</code> to validate your implementation.</p>
+<h3 id="a3c-impl-localstoragevec-"><a class="header" href="#a3c-impl-localstoragevec-">A3.C <code>impl LocalStorageVec</code> ⭐⭐</a></h3>
+<p>To make the <code>LocalStorageVec</code> more useful, we'll add more methods to it.
+Create an <code>impl</code>-block for <code>LocalStorageVec</code>.
+Don't forget to declare and provide the generic parameters.
+For now, to make implementations easier, we will add a bound <code>T</code>, requiring that it implements <code>Copy</code> and <code>Default</code>.
+First off, uncomment the test called <code>it_constructs</code>.
+Make it compile and pass by creating a associated function called <code>new</code> on <code>LocalStorageVec</code> that creates a new, empty <code>LocalStorageVec</code> instance without heap allocation.</p>
+<p>The next methods we'll implement are <code>len</code>, <code>push</code>, <code>pop</code>, <code>insert</code>, <code>remove</code> and <code>clear</code>:</p>
+<ul>
+<li><code>len</code> returns the length of the <code>LocalStorageVec</code></li>
+<li><code>push</code> appends an item to the end of the <code>LocalStorageVec</code> and increments its length. Possibly moves the contents to the heap if they no longer fit on the stack.</li>
+<li><code>pop</code> removes an item from the end of the <code>LocalStorageVec</code>, optionally returns it and decrements its length. If the length is 0, <code>pop</code> returns <code>None</code></li>
+<li><code>insert</code> inserts an item at the given index and increments the length of the <code>LocalStorageVec</code></li>
+<li><code>remove</code> removes an item at the given index and returns it.</li>
+<li><code>clear</code> resets the length of the <code>LocalStorageVec</code> to 0.</li>
+</ul>
+<p>Uncomment the corresponding test cases and make them compile and pass. <strong>Be sure to have a look at the methods provided for slices <a href="https://doc.rust-lang.org/std/primitive.slice.html"><code>[T]</code></a> and <a href="https://doc.rust-lang.org/std/vec/struct.Vec.html"><code>Vec&lt;T&gt;</code></a></strong> Specifically, <code>[T]::copy_within</code> and <code>Vec::extend_from_slice</code> can be of use.</p>
+<h3 id="a3d-iterator-and-intoiterator-"><a class="header" href="#a3d-iterator-and-intoiterator-">A3.D <code>Iterator</code> and <code>IntoIterator</code> ⭐⭐</a></h3>
+<p>Our <code>LocalStorageVec</code> can be used in the real world now, but we still shouldn't be satisfied. There are various traits in the standard library that we can implement for our <code>LocalStorageVec</code> that would make users of our crate happy.</p>
+<p>First off, we will implement the <a href="https://doc.rust-lang.org/std/iter/trait.IntoIterator.html"><code>IntoIterator</code></a> and <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html"><code>Iterator</code></a> traits. Go ahead and uncomment the <code>it_iters</code> test case. Let's define a new type:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct LocalStorageVecIter&lt;T, const N: usize&gt; {
+    vec: LocalStorageVec&lt;T, N&gt;,
+    counter: usize,
+}
+<span class="boring">}</span></code></pre></pre>
+<p>This is the type we'll implement the <code>Iterator</code> trait on. You'll need to specify the item this <code>Iterator</code> implementation yields, as well as an implementation for <code>Iterator::next</code>, which yields the next item. You'll be able to make this easier by bounding <code>T</code> to <code>Default</code> when implementing the <code>Iterator</code> trait, as then you can use the <a href="https://doc.rust-lang.org/std/mem/fn.take.html"><code>std::mem::take</code></a> function to take an item from the <code>LocalStorageVec</code> and replace it with the default value for <code>T</code>.</p>
+<p>Take a look at the list of methods under the <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html">'provided methods' section</a>. In there, lots of useful methods that come free with the implementation of the <code>Iterator</code> trait are defined, and implemented in terms of the <code>next</code> method. Knowing in the back of your head what methods there are, greatly helps in improving your efficiency in programming with Rust. Which of the provided methods can you override in order to make the implementation of <code>LocalStorageVecIter</code> more efficient, given that we can access the fields and methods of <code>LocalStorageVec</code>?</p>
+<p>Now to instantiate a <code>LocalStorageVecIter</code>, implement the [<code>IntoIter</code>] trait for it, in such a way that calling <code>into_iter</code> yields a <code>LocalStorageVecIter</code>.</p>
+<h3 id="a3e-asref-and-asmut-"><a class="header" href="#a3e-asref-and-asmut-">A3.E <code>AsRef</code> and <code>AsMut</code> ⭐⭐</a></h3>
+<p><a href="https://doc.rust-lang.org/std/convert/trait.AsRef.html"><code>AsRef</code></a> and <a href="https://doc.rust-lang.org/std/convert/trait.AsMut.html"><code>AsMut</code></a> are used to implement <em>cheap</em> reference-to-reference coercion. For instance, our <code>LocalStorageVec&lt;T, N&gt;</code> is somewhat similar to a slice <code>&amp;[T]</code>, as both represent a contiguous series of <code>T</code> values. This is true whether the <code>LocalStorageVec</code> buffer resides on the stack or on the heap. </p>
+<p>Uncomment the <code>it_as_refs</code> test case and implement <code>AsRef&lt;[T]&gt;</code> and <code>AsMut&lt;[T]&gt;</code>.</p>
+<details>
+    <summary><b>Hint</b></summary>
+    Make sure to take into account the value of `len` for the `Stack` variant of `LocalStorageVec` when creating a slice.
+</details>
+<h3 id="a3f-index-"><a class="header" href="#a3f-index-">A3.F <code>Index</code> ⭐⭐</a></h3>
+<p>To allow users of the <code>LocalStorageVec</code> to read items or slices from its buffer, we can implement the <a href="https://doc.rust-lang.org/std/ops/trait.Index.html"><code>Index</code></a> trait. This trait is generic over the type of the item used for indexing. In order to make our <code>LocalStorageVec</code> versatile, we should implement: </p>
+<ul>
+<li><code>Index&lt;usize&gt;</code>, allowing us to get a single item by calling <code>vec[1]</code>;</li>
+<li><code>Index&lt;RangeTo&lt;usize&gt;&gt;</code>, allowing us to get the first <code>n</code> items (excluding item <code>n</code>) by calling <code>vec[..n]</code>;</li>
+<li><code>Index&lt;RangeFrom&lt;usize&gt;&gt;</code>, allowing us to get the last <code>n</code> items by calling <code>vec[n..]</code>;</li>
+<li><code>Index&lt;Range&lt;usize&gt;&gt;</code>, allowing us to get the items between <code>n</code> and <code>m</code> items (excluding item <code>m</code>) by calling <code>vec[n..m]</code>;</li>
+</ul>
+<p>Each of these implementations can be implemented in terms of the <code>as_ref</code> implementation, as slices <code>[T]</code> all support indexing by the previous types. That is, <code>[T]</code> also implements <code>Index</code> for those types. Uncomment the <code>it_indexes</code> test case and run <code>cargo test</code> in order to validate your implementation.</p>
+<h3 id="a3g-removing-bounds-"><a class="header" href="#a3g-removing-bounds-">A3.G Removing bounds ⭐⭐</a></h3>
+<p>When we implemented the borrowing <code>Iterator</code>, we saw that it's possible to define methods in separate <code>impl</code> blocks with different type bounds. Some of the functionality you wrote used the assumption that <code>T</code> is both <code>Copy</code> and <code>Default</code>. However, this means that each of those methods are only defined for <code>LocalStorageVec</code>s containing items of type <code>T</code> that in fact do implement <code>Copy</code> and <code>Default</code>, which is not ideal. How many methods can you rewrite having one or both of these bounds removed?</p>
+<h4 id="a3h-borrowing-iterator-"><a class="header" href="#a3h-borrowing-iterator-">A3.H Borrowing <code>Iterator</code> ⭐⭐⭐</a></h4>
+<p>We've already got an iterator for <code>LocalStorageVec</code>, though it has the limitation that in order to construct it, the <code>LocalStorageVec</code> needs to be consumed. What if we only want to iterate over the items, and not consume them? We will need another iterator type, one that contains an immutable reference to the <code>LocalStorageVec</code> and that will thus need a lifetime annotation. Add a method called <code>iter</code> to <code>LocalStorageVec</code> that takes a shared <code>&amp;self</code> reference, and instantiates the borrowing iterator. Implement the <code>Iterator</code> trait with the appropriate <code>Item</code> reference type for your borrowing iterator. To validate your code, uncomment and run the <code>it_borrowing_iters</code> test case.</p>
+<p>Note that this time, the test won't compile if you require the items of <code>LocalStorageVec</code> be <code>Copy</code>! That means you'll have to define <code>LocalStorageVec::iter</code> in a new <code>impl</code> block that does not put this bound on <code>T</code>:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;T: Default + Copy, const N: usize&gt; LocalStorageVec&lt;T, N&gt; {
+    // Methods you've implemented so far
+}
+
+impl&lt;T: const N: usize&gt; LocalStorageVec&lt;T, N&gt; {
+    pub fn iter(&amp;self) -&gt; /* TODO */
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Defining methods in separate <code>impl</code> blocks means some methods are not available for certain instances of the generic type. In our case, the <code>new</code> method is only available for <code>LocalStorageVec</code>s containing items of type <code>T</code> that implement both <code>Copy</code> and <code>Default</code>, but <code>iter</code> is available for all <code>LocalStorageVec</code>s.</p>
+<h3 id="a3i-generic-index-"><a class="header" href="#a3i-generic-index-">A3.I Generic <code>Index</code> ⭐⭐⭐⭐</a></h3>
+<p>You've probably duplicated a lot of code in the last exercise. We can reduce the boilerplate by defining an empty trait:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait LocalStorageVecIndex {}
+<span class="boring">}</span></code></pre></pre>
+<p>First, implement this trait for <code>usize</code>, <code>RangeTo&lt;usize&gt;</code>, <code>RangeFrom&lt;usize&gt;</code>, and <code>Range&lt;usize&gt;</code>.</p>
+<p>Next, replace the implementations from the previous exercise with a blanket implementation of <code>Index</code>. In English:</p>
+<p><em>&quot;For each type <code>T</code>, <code>I</code> and constant <code>N</code> of type <code>usize</code>,</em>
+<em>implement <code>Index&lt;I&gt;</code> for <code>LocalStorageVec&lt;T, N&gt;</code>,</em>
+<em>where <code>I</code> implements <code>LocalStorageVecIndex</code></em>
+<em>and <code>[T]</code> implements <code>Index&lt;I&gt;</code>&quot;</em></p>
+<p>If you've done this correctly, <code>it_indexes</code> should again compile and pass.</p>
+<h3 id="a3j-deref-and-derefmut-"><a class="header" href="#a3j-deref-and-derefmut-">A3.J <code>Deref</code> and <code>DerefMut</code> ⭐⭐⭐⭐</a></h3>
+<p>The next trait that makes our <code>LocalStorageVec</code> more flexible in use are <a href="https://doc.rust-lang.org/std/ops/trait.Deref.html"><code>Deref</code></a> and <a href="https://doc.rust-lang.org/std/ops/trait.DerefMut.html"><code>DerefMut</code></a> that utilize the 'deref coercion' feature of Rust to allow types to be treated as if they were some type they look like.
+That would allow us to use any <a href="https://doc.rust-lang.org/std/primitive.slice.html">method that is defined on <code>[T]</code></a> by calling them on a <code>LocalStorageVec</code>.
+Before continuing, read the section <a href="https://doc.rust-lang.org/book/ch15-02-deref.html#treating-a-type-like-a-reference-by-implementing-the-deref-trait">'Treating a Type Like a Reference by Implementing the Deref Trait'</a> from The Rust Programming Language (TRPL).
+<strong>Don't confuse deref coercion with any kind of inheritance! Using <code>Deref</code> and <code>DerefMut</code> for inheritance is frowned upon in Rust.</strong></p>
+<p>Below, an implementation of <code>Deref</code> and <code>DerefMut</code> is provided in terms of the <code>AsRef</code> and <code>AsMut</code> implementations. Notice the specific way in which <code>as_ref</code> and <code>as_mut</code> are called.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;T, const N: usize&gt; Deref for LocalStorageVec&lt;T, N&gt; {
+    type Target = [T];
+
+    fn deref(&amp;self) -&gt; &amp;Self::Target {
+        &lt;Self as AsRef&lt;[T]&gt;&gt;::as_ref(self)
+    }
+}
+
+impl&lt;T, const N: usize&gt; DerefMut for LocalStorageVec&lt;T, N&gt; {
+    fn deref_mut(&amp;mut self) -&gt; &amp;mut Self::Target {
+        &lt;Self as AsMut&lt;[T]&gt;&gt;::as_mut(self)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Question</strong></p>
+<ul>
+<li>Replacing the implementation of <code>deref</code> with <code>self.as_ref()</code> results in a stack overflow when running an unoptimized version. Why? (Hint: deref coercion)</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../A2-advanced-intro/mod.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../B-application-programming/mod.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../A2-advanced-intro/mod.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../B-application-programming/mod.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
