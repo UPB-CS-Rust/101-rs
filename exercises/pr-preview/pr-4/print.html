@@ -1,0 +1,857 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Rust 101 - Exercises</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="0-install/mod.html"><strong aria-hidden="true">1.</strong> 0 - Installation</a></li><li class="chapter-item expanded "><a href="A1-language-basics/mod.html"><strong aria-hidden="true">2.</strong> A1 - Language basics</a></li><li class="chapter-item expanded "><a href="A2-advanced-intro/mod.html"><strong aria-hidden="true">3.</strong> A2 - Advanced Syntax, Ownership, references</a></li><li class="chapter-item expanded "><a href="A3-traits-generics/mod.html"><strong aria-hidden="true">4.</strong> A3 - Traits and generics</a></li><li class="chapter-item expanded "><a href="B-application-programming/mod.html"><strong aria-hidden="true">5.</strong> B - Application programming</a></li><li class="chapter-item expanded "><a href="C-concurrency-parallelism/mod.html"><strong aria-hidden="true">6.</strong> C - Concurrency & Parallelism</a></li><li class="chapter-item expanded "><a href="D-trait-objects-patterns/mod.html"><strong aria-hidden="true">7.</strong> D - Trait objects and Rust patterns</a></li><li class="chapter-item expanded "><a href="E-async-web/mod.html"><strong aria-hidden="true">8.</strong> E - Async and Rust for Web</a></li><li class="chapter-item expanded "><a href="F-safe-unsafe/mod.html"><strong aria-hidden="true">9.</strong> F - Safe Unsafe Rust</a></li><li class="chapter-item expanded "><a href="G-ffi/mod.html"><strong aria-hidden="true">10.</strong> G - FFI and Dynamic modules</a></li><li class="chapter-item expanded "><a href="P-final-project/mod.html"><strong aria-hidden="true">11.</strong> P Final project</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust 101 - Exercises</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="module-0---installing-the-tools"><a class="header" href="#module-0---installing-the-tools">Module 0 - Installing the tools</a></h1>
+<p>In this file you'll find instructions on how to install the tools we'll use during the course.</p>
+<p>All of these tools are available for Linux, macOS and Windows users.
+We'll need the tools to write and compile our Rust code, and allow for remote mentoring.
+<em>Important: these instructions are to be followed at home, before the start of the first tutorial.</em>
+<em>If you have any problems with installation, contact the lecturers! We won't be addressing installation problems during the first tutorial.</em></p>
+<h2 id="rust-and-cargo"><a class="header" href="#rust-and-cargo">Rust and Cargo</a></h2>
+<p>First we'll need <code>rustc</code>, the standard Rust compiler.
+<code>rustc</code> is generally not invoked directly, but through <code>cargo</code>, the Rust package manager.
+<code>rustup</code> takes care of installing <code>rustc</code> and <code>cargo</code>.</p>
+<p>This part is easy: go to <a href="https://rustup.rs">https://rustup.rs</a> and follow the instructions.
+Please make sure you're installing the latest default toolchain.
+Once done, run</p>
+<pre><code class="language-bash">rustc -V &amp;&amp; cargo -V
+</code></pre>
+<p>The output should be something like this:</p>
+<pre><code class="language-bash">rustc 1.67.1 (d5a82bbd2 2023-02-07)
+cargo 1.67.1 (8ecd4f20a 2023-01-10)
+</code></pre>
+<p>Using Rustup, you can install Rust toolchains and components. More info: </p>
+<ul>
+<li><a href="https://rust-lang.github.io/rustup">https://rust-lang.github.io/rustup</a></li>
+<li><a href="https://doc.rust-lang.org/cargo">https://doc.rust-lang.org/cargo</a></li>
+</ul>
+<h2 id="rustfmt-and-clippy"><a class="header" href="#rustfmt-and-clippy">Rustfmt and Clippy</a></h2>
+<p>To avoid discussions, Rust provides its own formatting tool, Rustfmt.
+We'll also be using Clippy, a collection of lints to analyze your code, that catches common mistakes for you.
+You'll notice that Rusts Clippy can be a very helpful companion.
+Both Rustfmt and Clippy are installed by Rustup by default.</p>
+<p>To run Rustfmt on your project, execute:</p>
+<pre><code class="language-bash">cargo fmt
+</code></pre>
+<p>To run clippy:</p>
+<pre><code class="language-bash">cargo clippy
+</code></pre>
+<p>More info:</p>
+<ul>
+<li>Rustfmt: <a href="https://github.com/rust-lang/rustfmt">https://github.com/rust-lang/rustfmt</a></li>
+<li>Clippy: <a href="https://github.com/rust-lang/rust-clippy">https://github.com/rust-lang/rust-clippy</a></li>
+</ul>
+<h2 id="visual-studio-code"><a class="header" href="#visual-studio-code">Visual Studio Code</a></h2>
+<p>During the course, we will use Visual Studio Code (vscode) to write code in.
+Of course, you're free to use your favorite editor, but if you encounter problems, you can't rely on support from us.
+Also, we'll use vscode to allow for remote collaboration and mentoring during tutorial sessions.</p>
+<p>You can find the installation instructions here: <a href="https://code.visualstudio.com/">https://code.visualstudio.com/</a>.</p>
+<p>We will install some plugins as well.
+The first one is Rust-Analyzer.
+Installation instructions can be found here <a href="https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer">https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer</a>.
+Rust-Analyzer provides a lot of help during development and in indispensable when getting started with Rust.</p>
+<p>Another plugin we'll install is Live Share.
+We will use the plugin to share screens and provide help during remote tutorial sessions.
+The extension pack also contains the Live Share Audio plugin, which allows for audio communication during share sessions.
+Installation instructions can be found here: <a href="https://marketplace.visualstudio.com/items?itemName=MS-vsliveshare.vsliveshare">https://marketplace.visualstudio.com/items?itemName=MS-vsliveshare.vsliveshare</a></p>
+<p>The last plugin we'll use is CodeLLDB.
+This plugin enables debugging Rust code from within vscode.
+You can find instructions here: <a href="https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb">https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb</a>.</p>
+<p>More info:</p>
+<ul>
+<li><a href="https://rust-analyzer.github.io/">https://rust-analyzer.github.io/</a></li>
+<li><a href="https://code.visualstudio.com/learn/collaboration/live-share">https://code.visualstudio.com/learn/collaboration/live-share</a></li>
+</ul>
+<h2 id="git"><a class="header" href="#git">Git</a></h2>
+<p>We will use Git as version control tool.
+If you haven't installed Git already, you can find instructions here: <a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">https://git-scm.com/book/en/v2/Getting-Started-Installing-Git</a>.
+If you're new to Git, you'll also appreciate GitHubs intro to Git <a href="https://docs.github.com/en/get-started/using-git/about-git">https://docs.github.com/en/get-started/using-git/about-git</a> and the Git intro with vscode, which you can find here: <a href="https://www.youtube.com/watch?v=i_23KUAEtUM">https://www.youtube.com/watch?v=i_23KUAEtUM</a>.</p>
+<p>More info: <a href="https://www.youtube.com/playlist?list=PLg7s6cbtAD15G8lNyoaYDuKZSKyJrgwB-">https://www.youtube.com/playlist?list=PLg7s6cbtAD15G8lNyoaYDuKZSKyJrgwB-</a></p>
+<h2 id="course-code"><a class="header" href="#course-code">Course code</a></h2>
+<p>Now that everything is installed, you can clone the source code repository.
+The repository can be found here: <a href="https://github.com/tweedegolf/101-rs">https://github.com/tweedegolf/101-rs</a>.</p>
+<p>Instructions on cloning the repository can be found here: <a href="https://docs.github.com/en/get-started/getting-started-with-git/about-remote-repositories#cloning-with-https-urls">https://docs.github.com/en/get-started/getting-started-with-git/about-remote-repositories#cloning-with-https-urls</a></p>
+<h1 id="trying-it-out"><a class="header" href="#trying-it-out">Trying it out</a></h1>
+<p>Now that you've got the code on your machine, navigate to it using your favorite terminal and run:</p>
+<pre><code>cd exercises/0-intro
+cargo run
+</code></pre>
+<p>This command may take a while to run the first time, as Cargo will first fetch the crate index from the registry.
+It will compile and run the <code>intro</code> package, which you can find in <code>exercises/0-intro</code>.
+If everything goes well, you should see some output:</p>
+<pre><code>   Compiling intro v0.1.0 (/home/henkdieter/tg/edu/101-rs/exercises/0-intro)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.11s
+     Running `target/debug/intro`
+🦀 Hello, world! 🦀
+You've successfully compiled and run your first Rust project!
+</code></pre>
+<p>If Rust-Analyzer is set up correctly, you can also click the '▶️ Run'-button that is shown in <code>exercises/0-intro/src/main.rs</code>.
+With CodeLLDB installed correctly, you can also start a debug session by clicking 'Debug', right next to the '▶️ Run'-button.
+Play a little with setting breakpoints by clicking on a line number, making a red circle appear and stepping over/into/out of functions using the controls.
+You can view variable values by hovering over them while execution is paused, or by expanding the 'Local' view under 'Variables' in the left panel during a debug session.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="module-a1---language-basics"><a class="header" href="#module-a1---language-basics">Module A1 - Language basics</a></h1>
+<p><a href="A1-language-basics//slides/A1/">Slides</a> (or <a href="A1-language-basics//slides/A1-intro-to-rust.pdf">pdf</a>)</p>
+<h2 id="a11-basic-syntax"><a class="header" href="#a11-basic-syntax">A1.1 Basic syntax</a></h2>
+<p>Open <code>exercises/A1/1-basic-syntax</code> in your editor. This folder contains a number of exercises with which you can practise basic Rust syntax.</p>
+<p>While inside the <code>exercises/A1/1-basic-syntax</code> folder, to get started, run:</p>
+<pre><code class="language-bash">cargo run --bin 01
+</code></pre>
+<p>This will try to compile exercise 1. Try and get the example to run, and continue on with the next exercise by replacing the number of the exercise in the cargo run command.</p>
+<p>Some exercises contain unit tests. To run the test in <code>src/bin/01.rs</code>, run</p>
+<pre><code class="language-bash">cargo test --bin 01
+</code></pre>
+<p>Make sure all tests pass!</p>
+<h2 id="a12-move-semantics"><a class="header" href="#a12-move-semantics">A1.2 Move semantics</a></h2>
+<p><em>This exercise is adapted from the <a href="https://github.com/rust-lang/rustlings/tree/main/exercises/move_semantics">move semantics exercise</a> from Rustlings</em></p>
+<p>This exercise enables you to practise with move semantics. It works similarly to exercise <code>A1.1</code>. To get started, <code>exercises/A1/2-move-semantics</code> in your editor and run</p>
+<pre><code class="language-bash">cargo run --bin 01
+</code></pre>
+<p><code>01.rs</code> should compile as is, but you'll have to make sure the others compile as well. For some exercises, instructions are included as doc comments at the top of the file. Make sure to adhere to them.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="module-a2---advanced-syntax-ownership-references"><a class="header" href="#module-a2---advanced-syntax-ownership-references">Module A2 - Advanced Syntax, Ownership, references</a></h1>
+<p><a href="A2-advanced-intro//slides/A2/">Slides</a> (or <a href="A2-advanced-intro//slides/A2-advanced-intro.pdf">pdf</a>)</p>
+<h2 id="a20-borrowing"><a class="header" href="#a20-borrowing">A2.0 Borrowing</a></h2>
+<p>Fix the two examples in the <code>exercises/A2/0-borrowing</code> crate! Don't forget you
+can run individual binaries by using <code>cargo run --bin 01</code> in that directory!
+Make sure to follow the instructions that are in the comments!</p>
+<h2 id="a21-error-propagation"><a class="header" href="#a21-error-propagation">A2.1 Error Propagation</a></h2>
+<p>Follow the instructions in the comments of <code>excercises/A2/1-error-propagating/src/main.rs</code>!</p>
+<h2 id="a22-slices"><a class="header" href="#a22-slices">A2.2 Slices</a></h2>
+<p>Follow the instructions in the comments of <code>excercises/A2/2-slices/src/main.rs</code>!
+Don't take too much time on the extra assignment, instead come back later once
+you've done the rest of the excercises.</p>
+<h2 id="a23-error-handling"><a class="header" href="#a23-error-handling">A2.3 Error Handling</a></h2>
+<p>Follow the instructions in the comments of <code>excercises/A2/3-error-handling/src/main.rs</code>!</p>
+<h2 id="a24-boxed-data"><a class="header" href="#a24-boxed-data">A2.4 Boxed Data</a></h2>
+<p>Follow the instructions in the comments of <code>excercises/A2/4-boxed-data/src/main.rs</code>!</p>
+<h2 id="a25-bonus---ring-buffer"><a class="header" href="#a25-bonus---ring-buffer">A2.5 Bonus - Ring Buffer</a></h2>
+<p>This is a bonus exercise! Follow the instructions in the comments of
+<code>excercises/A2/5-bonus-ring-buffer/src/main.rs</code>!</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="module-a3---traits-and-generics"><a class="header" href="#module-a3---traits-and-generics">Module A3 - Traits and generics</a></h1>
+<p><a href="A3-traits-generics//slides/A3/">Slides</a> (or <a href="A3-traits-generics//slides/A3-traits-generics.pdf">pdf</a>)</p>
+<h2 id="a3-local-storage-vec"><a class="header" href="#a3-local-storage-vec">A3 Local Storage Vec</a></h2>
+<p>In this exercise, we'll create a type called <code>LocalStorageVec</code>, which is generic list of items that resides either on the stack or the heap, depending on its size. If its size is small enough for items to be put on the stack, the <code>LocalStorageVec</code> buffer is backed by an array. <code>LocalStorageVec</code> is not only generic over the type  (<code>T</code>) of items in the list, but also by the size (<code>N</code>) of this stack-located array using a relatively new feature called <a href="https://doc.rust-lang.org/reference/items/generics.html#const-generics">&quot;const generics&quot;</a>. Once the <code>LocalStorageVec</code> contains more items than fit in the array, a heap based <a href="https://doc.rust-lang.org/std/vec/struct.Vec.html"><code>Vec</code></a> is allocated as space for the items to reside in.</p>
+<p><strong>Within this exercise, the objectives are annotated with a number of stars (⭐), indicating the difficulty. You are likely not to be able to finish all exercises during the tutorial session</strong></p>
+<p><strong>Questions</strong></p>
+<ol>
+<li>When is such a data structure more efficient than a standard <code>Vec</code>?</li>
+<li>What are the downsides, compared to just using a <code>Vec</code>?</li>
+</ol>
+<p>Open the <code>exercises/A3/2-local-storage-vec</code> crate. It contains a <code>src/lib.rs</code> file, meaning this crate is a library. <code>lib.rs</code> contains a number of tests, which can be run by calling <code>cargo test</code>. Don't worry if they don't pass or even compile right now: it's your job to fix that in this exercise. Most of the tests are commented out right now, to enable a step-by-step approach. <strong>Before you begin, have a look at the code and the comments in there, they contain various helpful clues.</strong></p>
+<h3 id="a3a-defining-the-type-"><a class="header" href="#a3a-defining-the-type-">A3.A Defining the type ⭐</a></h3>
+<p>Currently, the <code>LocalStorageVec</code> <code>enum</code> is incomplete. Give it two variants: <code>Stack</code> and <code>Heap</code>. <code>Stack</code> contains two named fields, <code>buf</code> and <code>len</code>. <code>buf</code> will be the array with a capacity to hold <code>N</code> items of type <code>T</code>; <code>len</code> is a field of type <code>usize</code> that will denote the amount of items actually stored. The <code>Heap</code> variant has an unnamed field containing a <code>Vec&lt;T&gt;</code>. If you've defined the <code>LocalStorageVec</code> variants correctly, running <code>cargo test</code> should output something like</p>
+<pre><code class="language-txt">running 1 test
+test test::it_compiles ... ignored, This test is just to validate the definition of `LocalStorageVec`. If it compiles, all is OK
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+</code></pre>
+<p>This test does (and should) not run, but is just there for checking your variant definition.</p>
+<details>
+    <summary><b>Hint 1</b></summary>
+    You may be able to reverse-engineer the `LocalStorageVec` definition using the code of the `it_compiles` test case.
+</details>
+<br/>
+<details>
+    <summary><b>Hint 2 (If you got stuck, but try to resist me for a while)</b></summary>
+<p>Below definition works. Read the code comments and make sure you understand what's going on.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Define an enum `LocalStorageVec` that is generic over
+// type `T` and a constant `N` of type `usize`
+pub enum LocalStorageVec&lt;T, const N: usize&gt; {
+    // Define a struct-like variant called `Stack` containing two named fields:
+    // - `buf` is an array with elements of `T` of size `N`
+    // - `len` is a field of type `usize`
+    Stack { buf: [T; N], len: usize },
+    // Define a tuple-like variant called `Heap`, containing a single field
+    // of type `Vec&lt;T&gt;`, which is a heap-based growable, contiguous list of `T`
+    Heap(Vec&lt;T&gt;),
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<h3 id="a3b-impl-ing-fromvect-"><a class="header" href="#a3b-impl-ing-fromvect-">A3.B <code>impl</code>-ing <code>From&lt;Vec&lt;T&gt;&gt;</code> ⭐</a></h3>
+<p>Uncomment the test <code>it_from_vecs</code>, and add an implementation for <code>From&lt;Vec&lt;T&gt;&gt;</code> to <code>LocalStorageVec&lt;T&gt;</code>. To do so, copy the following code in your <code>lib.rs</code> file and replace the <code>todo!</code> macro invocation with your code that creates a heap-based <code>LocalStorageVec</code> containing the passed <code>Vec&lt;T&gt;</code>.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;T, const N: usize&gt; From&lt;Vec&lt;T&gt;&gt; for LocalStorageVec&lt;T, N&gt; {
+    fn from(v: Vec&lt;T&gt;) -&gt; Self {
+        todo!(&quot;Implement me&quot;);
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Question</strong> </p>
+<ol>
+<li>How would you pronounce the first line of the code you just copied in English?*</li>
+</ol>
+<p>Run <code>cargo test</code> to validate your implementation.</p>
+<h3 id="a3c-impl-localstoragevec-"><a class="header" href="#a3c-impl-localstoragevec-">A3.C <code>impl LocalStorageVec</code> ⭐⭐</a></h3>
+<p>To make the <code>LocalStorageVec</code> more useful, we'll add more methods to it.
+Create an <code>impl</code>-block for <code>LocalStorageVec</code>.
+Don't forget to declare and provide the generic parameters.
+For now, to make implementations easier, we will add a bound <code>T</code>, requiring that it implements <code>Copy</code> and <code>Default</code>.
+First off, uncomment the test called <code>it_constructs</code>.
+Make it compile and pass by creating a associated function called <code>new</code> on <code>LocalStorageVec</code> that creates a new, empty <code>LocalStorageVec</code> instance without heap allocation.</p>
+<p>The next methods we'll implement are <code>len</code>, <code>push</code>, <code>pop</code>, <code>insert</code>, <code>remove</code> and <code>clear</code>:</p>
+<ul>
+<li><code>len</code> returns the length of the <code>LocalStorageVec</code></li>
+<li><code>push</code> appends an item to the end of the <code>LocalStorageVec</code> and increments its length. Possibly moves the contents to the heap if they no longer fit on the stack.</li>
+<li><code>pop</code> removes an item from the end of the <code>LocalStorageVec</code>, optionally returns it and decrements its length. If the length is 0, <code>pop</code> returns <code>None</code></li>
+<li><code>insert</code> inserts an item at the given index and increments the length of the <code>LocalStorageVec</code></li>
+<li><code>remove</code> removes an item at the given index and returns it.</li>
+<li><code>clear</code> resets the length of the <code>LocalStorageVec</code> to 0.</li>
+</ul>
+<p>Uncomment the corresponding test cases and make them compile and pass. <strong>Be sure to have a look at the methods provided for slices <a href="https://doc.rust-lang.org/std/primitive.slice.html"><code>[T]</code></a> and <a href="https://doc.rust-lang.org/std/vec/struct.Vec.html"><code>Vec&lt;T&gt;</code></a></strong> Specifically, <code>[T]::copy_within</code> and <code>Vec::extend_from_slice</code> can be of use.</p>
+<h3 id="a3d-iterator-and-intoiterator-"><a class="header" href="#a3d-iterator-and-intoiterator-">A3.D <code>Iterator</code> and <code>IntoIterator</code> ⭐⭐</a></h3>
+<p>Our <code>LocalStorageVec</code> can be used in the real world now, but we still shouldn't be satisfied. There are various traits in the standard library that we can implement for our <code>LocalStorageVec</code> that would make users of our crate happy.</p>
+<p>First off, we will implement the <a href="https://doc.rust-lang.org/std/iter/trait.IntoIterator.html"><code>IntoIterator</code></a> and <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html"><code>Iterator</code></a> traits. Go ahead and uncomment the <code>it_iters</code> test case. Let's define a new type:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct LocalStorageVecIter&lt;T, const N: usize&gt; {
+    vec: LocalStorageVec&lt;T, N&gt;,
+    counter: usize,
+}
+<span class="boring">}</span></code></pre></pre>
+<p>This is the type we'll implement the <code>Iterator</code> trait on. You'll need to specify the item this <code>Iterator</code> implementation yields, as well as an implementation for <code>Iterator::next</code>, which yields the next item. You'll be able to make this easier by bounding <code>T</code> to <code>Default</code> when implementing the <code>Iterator</code> trait, as then you can use the <a href="https://doc.rust-lang.org/std/mem/fn.take.html"><code>std::mem::take</code></a> function to take an item from the <code>LocalStorageVec</code> and replace it with the default value for <code>T</code>.</p>
+<p>Take a look at the list of methods under the <a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html">'provided methods' section</a>. In there, lots of useful methods that come free with the implementation of the <code>Iterator</code> trait are defined, and implemented in terms of the <code>next</code> method. Knowing in the back of your head what methods there are, greatly helps in improving your efficiency in programming with Rust. Which of the provided methods can you override in order to make the implementation of <code>LocalStorageVecIter</code> more efficient, given that we can access the fields and methods of <code>LocalStorageVec</code>?</p>
+<p>Now to instantiate a <code>LocalStorageVecIter</code>, implement the [<code>IntoIter</code>] trait for it, in such a way that calling <code>into_iter</code> yields a <code>LocalStorageVecIter</code>.</p>
+<h3 id="a3e-asref-and-asmut-"><a class="header" href="#a3e-asref-and-asmut-">A3.E <code>AsRef</code> and <code>AsMut</code> ⭐⭐</a></h3>
+<p><a href="https://doc.rust-lang.org/std/convert/trait.AsRef.html"><code>AsRef</code></a> and <a href="https://doc.rust-lang.org/std/convert/trait.AsMut.html"><code>AsMut</code></a> are used to implement <em>cheap</em> reference-to-reference coercion. For instance, our <code>LocalStorageVec&lt;T, N&gt;</code> is somewhat similar to a slice <code>&amp;[T]</code>, as both represent a contiguous series of <code>T</code> values. This is true whether the <code>LocalStorageVec</code> buffer resides on the stack or on the heap. </p>
+<p>Uncomment the <code>it_as_refs</code> test case and implement <code>AsRef&lt;[T]&gt;</code> and <code>AsMut&lt;[T]&gt;</code>.</p>
+<details>
+    <summary><b>Hint</b></summary>
+    Make sure to take into account the value of `len` for the `Stack` variant of `LocalStorageVec` when creating a slice.
+</details>
+<h3 id="a3f-index-"><a class="header" href="#a3f-index-">A3.F <code>Index</code> ⭐⭐</a></h3>
+<p>To allow users of the <code>LocalStorageVec</code> to read items or slices from its buffer, we can implement the <a href="https://doc.rust-lang.org/std/ops/trait.Index.html"><code>Index</code></a> trait. This trait is generic over the type of the item used for indexing. In order to make our <code>LocalStorageVec</code> versatile, we should implement: </p>
+<ul>
+<li><code>Index&lt;usize&gt;</code>, allowing us to get a single item by calling <code>vec[1]</code>;</li>
+<li><code>Index&lt;RangeTo&lt;usize&gt;&gt;</code>, allowing us to get the first <code>n</code> items (excluding item <code>n</code>) by calling <code>vec[..n]</code>;</li>
+<li><code>Index&lt;RangeFrom&lt;usize&gt;&gt;</code>, allowing us to get the last <code>n</code> items by calling <code>vec[n..]</code>;</li>
+<li><code>Index&lt;Range&lt;usize&gt;&gt;</code>, allowing us to get the items between <code>n</code> and <code>m</code> items (excluding item <code>m</code>) by calling <code>vec[n..m]</code>;</li>
+</ul>
+<p>Each of these implementations can be implemented in terms of the <code>as_ref</code> implementation, as slices <code>[T]</code> all support indexing by the previous types. That is, <code>[T]</code> also implements <code>Index</code> for those types. Uncomment the <code>it_indexes</code> test case and run <code>cargo test</code> in order to validate your implementation.</p>
+<h3 id="a3g-removing-bounds-"><a class="header" href="#a3g-removing-bounds-">A3.G Removing bounds ⭐⭐</a></h3>
+<p>When we implemented the borrowing <code>Iterator</code>, we saw that it's possible to define methods in separate <code>impl</code> blocks with different type bounds. Some of the functionality you wrote used the assumption that <code>T</code> is both <code>Copy</code> and <code>Default</code>. However, this means that each of those methods are only defined for <code>LocalStorageVec</code>s containing items of type <code>T</code> that in fact do implement <code>Copy</code> and <code>Default</code>, which is not ideal. How many methods can you rewrite having one or both of these bounds removed?</p>
+<h4 id="a3h-borrowing-iterator-"><a class="header" href="#a3h-borrowing-iterator-">A3.H Borrowing <code>Iterator</code> ⭐⭐⭐</a></h4>
+<p>We've already got an iterator for <code>LocalStorageVec</code>, though it has the limitation that in order to construct it, the <code>LocalStorageVec</code> needs to be consumed. What if we only want to iterate over the items, and not consume them? We will need another iterator type, one that contains an immutable reference to the <code>LocalStorageVec</code> and that will thus need a lifetime annotation. Add a method called <code>iter</code> to <code>LocalStorageVec</code> that takes a shared <code>&amp;self</code> reference, and instantiates the borrowing iterator. Implement the <code>Iterator</code> trait with the appropriate <code>Item</code> reference type for your borrowing iterator. To validate your code, uncomment and run the <code>it_borrowing_iters</code> test case.</p>
+<p>Note that this time, the test won't compile if you require the items of <code>LocalStorageVec</code> be <code>Copy</code>! That means you'll have to define <code>LocalStorageVec::iter</code> in a new <code>impl</code> block that does not put this bound on <code>T</code>:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;T: Default + Copy, const N: usize&gt; LocalStorageVec&lt;T, N&gt; {
+    // Methods you've implemented so far
+}
+
+impl&lt;T: const N: usize&gt; LocalStorageVec&lt;T, N&gt; {
+    pub fn iter(&amp;self) -&gt; /* TODO */
+}
+<span class="boring">}</span></code></pre></pre>
+<p>Defining methods in separate <code>impl</code> blocks means some methods are not available for certain instances of the generic type. In our case, the <code>new</code> method is only available for <code>LocalStorageVec</code>s containing items of type <code>T</code> that implement both <code>Copy</code> and <code>Default</code>, but <code>iter</code> is available for all <code>LocalStorageVec</code>s.</p>
+<h3 id="a3i-generic-index-"><a class="header" href="#a3i-generic-index-">A3.I Generic <code>Index</code> ⭐⭐⭐⭐</a></h3>
+<p>You've probably duplicated a lot of code in the last exercise. We can reduce the boilerplate by defining an empty trait:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait LocalStorageVecIndex {}
+<span class="boring">}</span></code></pre></pre>
+<p>First, implement this trait for <code>usize</code>, <code>RangeTo&lt;usize&gt;</code>, <code>RangeFrom&lt;usize&gt;</code>, and <code>Range&lt;usize&gt;</code>.</p>
+<p>Next, replace the implementations from the previous exercise with a blanket implementation of <code>Index</code>. In English:</p>
+<p><em>&quot;For each type <code>T</code>, <code>I</code> and constant <code>N</code> of type <code>usize</code>,</em>
+<em>implement <code>Index&lt;I&gt;</code> for <code>LocalStorageVec&lt;T, N&gt;</code>,</em>
+<em>where <code>I</code> implements <code>LocalStorageVecIndex</code></em>
+<em>and <code>[T]</code> implements <code>Index&lt;I&gt;</code>&quot;</em></p>
+<p>If you've done this correctly, <code>it_indexes</code> should again compile and pass.</p>
+<h3 id="a3j-deref-and-derefmut-"><a class="header" href="#a3j-deref-and-derefmut-">A3.J <code>Deref</code> and <code>DerefMut</code> ⭐⭐⭐⭐</a></h3>
+<p>The next trait that makes our <code>LocalStorageVec</code> more flexible in use are <a href="https://doc.rust-lang.org/std/ops/trait.Deref.html"><code>Deref</code></a> and <a href="https://doc.rust-lang.org/std/ops/trait.DerefMut.html"><code>DerefMut</code></a> that utilize the 'deref coercion' feature of Rust to allow types to be treated as if they were some type they look like.
+That would allow us to use any <a href="https://doc.rust-lang.org/std/primitive.slice.html">method that is defined on <code>[T]</code></a> by calling them on a <code>LocalStorageVec</code>.
+Before continuing, read the section <a href="https://doc.rust-lang.org/book/ch15-02-deref.html#treating-a-type-like-a-reference-by-implementing-the-deref-trait">'Treating a Type Like a Reference by Implementing the Deref Trait'</a> from The Rust Programming Language (TRPL).
+<strong>Don't confuse deref coercion with any kind of inheritance! Using <code>Deref</code> and <code>DerefMut</code> for inheritance is frowned upon in Rust.</strong></p>
+<p>Below, an implementation of <code>Deref</code> and <code>DerefMut</code> is provided in terms of the <code>AsRef</code> and <code>AsMut</code> implementations. Notice the specific way in which <code>as_ref</code> and <code>as_mut</code> are called.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;T, const N: usize&gt; Deref for LocalStorageVec&lt;T, N&gt; {
+    type Target = [T];
+
+    fn deref(&amp;self) -&gt; &amp;Self::Target {
+        &lt;Self as AsRef&lt;[T]&gt;&gt;::as_ref(self)
+    }
+}
+
+impl&lt;T, const N: usize&gt; DerefMut for LocalStorageVec&lt;T, N&gt; {
+    fn deref_mut(&amp;mut self) -&gt; &amp;mut Self::Target {
+        &lt;Self as AsMut&lt;[T]&gt;&gt;::as_mut(self)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p><strong>Question</strong></p>
+<ul>
+<li>Replacing the implementation of <code>deref</code> with <code>self.as_ref()</code> results in a stack overflow when running an unoptimized version. Why? (Hint: deref coercion)</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="module-b---application-programming"><a class="header" href="#module-b---application-programming">Module B - Application programming</a></h1>
+<p><a href="B-application-programming//slides/B/">Slides</a> (or <a href="B-application-programming//slides/B-application-programming.pdf">pdf</a>)</p>
+<p><em>Code written in this exercise has to adhere to the Rust API Guidelines. <a href="https://rust-lang.github.io/api-guidelines/checklist.html">A checklist can be found here.</a></em></p>
+<h2 id="b1-serializing-and-deserializing-of-strings-with-serde-"><a class="header" href="#b1-serializing-and-deserializing-of-strings-with-serde-">B.1 Serializing and deserializing of <code>String</code>s with <code>serde</code> ⭐</a></h2>
+<p><em>This exercise is adapted from the <a href="https://github.com/ferrous-systems/teaching-material/blob/main/assignments/serde-lifetimes.adoc">serde_lifetimes exercise</a> by Ferrous Systems</em></p>
+<p>Open <code>exercises/B/1-my-serde-app/src/main.rs</code>. In there, you'll find some Rust code we will do this exercise with.</p>
+<p>We used <code>todo!()</code> macros to mark places where you should put code to make the program run. Look at the <a href="https://docs.rs/serde_json/latest/serde_json/#functions"><code>serde_json</code></a> api for help.</p>
+<details>
+    <summary><b>Hint</b></summary>
+Serde comes with two traits: `Serializable` and `Deserializable`. These traits can be `derive` d for your `struct` or `enum` types. Other `serde-*` crates use these traits to convert our data type from and to corresponding representation (`serde-json` to JSON, `serde-yaml` to YAML, etc.).
+</details>
+<blockquote>
+<p><em><strong>How come <code>main</code> returns an <code>anyhow::Result&lt;()&gt;</code>?</strong></em>
+By having <code>main</code> return a result, we can bubble errors up all the way to runtime. You can find more information about it in <a href="https://doc.rust-lang.org/rust-by-example/error/result.html#using-result-in-main">Rust By Example</a>. The <code>anyhow::Result</code> is a more flexible type of <code>Result</code>, which allows for easy conversion of error types.</p>
+</blockquote>
+<blockquote>
+<p><em><strong>What is that <code>r#&quot;...</code> thing?</strong></em><br />
+<code>r</code> in front of a string literal means it's a &quot;raw&quot; string. Escape sequences (<code>\n</code>, <code>\&quot;</code>, etc.) don't work, and thus they are very convenient for things like regular expressions, JSON literals, etc.</p>
+<p>Optionally <code>r</code> can be followed by one or more symbols (like <code>#</code> in our case), and then your string ends when there's a closing double quote followed by the same number of the same symbols. This is great for cases when you want to have double quotes inside your string literal. For our example <code>r#&quot; ... &quot;#</code> works great for JSON. In rare cases you'd want to put two or more pound signs. Like, when you store CSS color values in your JSON strings:</p>
+</blockquote>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// here `&quot;#` would not terminate the string
+r##&quot;
+    {
+        &quot;color&quot;: &quot;#ff00ff&quot;
+    }
+&quot;##
+<span class="boring">}</span></code></pre></pre>
+<h2 id="b2-your-first-rust-project"><a class="header" href="#b2-your-first-rust-project">B.2 Your first Rust project</a></h2>
+<p>In this exercise, you will create a Rust crate that adheres to the guidelines that were pointed out during the lecture. Additionally, you will add and use dependencies, create unit tests, and create some documentation. You can view this exercise as a stepping stone to the final project.</p>
+<p><em>This exercise should be done in groups of 2 people</em></p>
+<h3 id="b2a-setting-up-"><a class="header" href="#b2a-setting-up-">B.2.A Setting up ⭐</a></h3>
+<p>Create a new project using <code>cargo new --name quizzer</code>. Make sure it acts as both a binary and a library. That means there will be both a <code>src/lib.rs</code> and a <code>src/bin/quizzer/main.rs</code> file in your crate, where <code>quizzer</code> is the name of the binary:</p>
+<pre><code class="language-bash">$ tree
+.
+├── Cargo.toml
+├── quiz.json
+└── src
+    ├── bin
+    │   └── quizzer
+    │       └── main.rs
+    └── lib.rs
+
+</code></pre>
+<p>Add the following dependencies to your <code>Cargo.toml</code> file. Below items contain links to their page on lib.rs. Make sure you get a general idea of what these crates are for and how they can be used. Don't dive too deep just yet.</p>
+<ul>
+<li><a href="https://lib.rs/crates/anyhow"><code>anyhow</code> 1.0</a></li>
+<li><a href="https://lib.rs/crates/clap"><code>clap</code> 4.0</a> Also, skim over <a href="https://docs.rs/clap/latest/clap/_derive/_tutorial/index.html">https://docs.rs/clap/latest/clap/_derive/_tutorial/index.html</a></li>
+<li><a href="https://lib.rs/crates/serde_json"><code>serde-json</code> 1.0</a></li>
+<li><a href="https://lib.rs/crates/serde"><code>serde</code> 1.0</a></li>
+</ul>
+<p>Your <code>Cargo.toml</code> should look like this:</p>
+<pre><code class="language-toml">[package]
+name = &quot;quizzer&quot;
+version = &quot;0.1.0&quot;
+edition = &quot;2021&quot;
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = &quot;1.0.66&quot;
+clap = { version = &quot;4.0.18&quot;, features = [&quot;derive&quot;] }
+serde = { version = &quot;1.0&quot;, features = [&quot;derive&quot;] }
+serde_json = &quot;1.0.87&quot;
+</code></pre>
+<p>For <code>clap</code> and <code>serde</code>, the non-standard <code>derive</code> feature of each these crates is enabled. For <code>clap</code>, it allows us to derive the <code>Parser</code> trait, which greatly simplifies creating a CLI. The <code>derive</code> feaure from <code>serde</code> allows us to derive the <code>Serialize</code> and <code>Deserialize</code> traits on any struct we wish to serialize or deserialize using <code>serde</code> and its backends, in our case <code>serde_json</code>.</p>
+<h3 id="b2b-quizzer-"><a class="header" href="#b2b-quizzer-">B.2.B Quizzer ⭐⭐⭐</a></h3>
+<p>This exercise is about both design and finding information. You'll have to figure out a model to represent your quiz questions, as well as a means to store them into a JSON file, and load them yourself. Also, you will have to find out how to parse the program arguments.</p>
+<p>We will use the project we just set up to write a quiz game creator and player. You may add other dependencies as needed. It has the following functional requirements:</p>
+<ul>
+<li>It runs as a command-line tool in your terminal.</li>
+<li>It has two modes: question-entering mode and quiz mode. The mode is selected with a subcommand, passed as the first argument to the program.
+<ul>
+<li>Question-entering mode: Allows for entering multiple-choice quiz questions, with 4 possible answers each, exactly 1 of them being correct. The questions are stored on disk as a JSON file.</li>
+<li>Quiz mode: Loads stored questions from the JSON file, presents the questions one-by-one to the player, reads and verifies the player input, and presents the score at the end of the game.</li>
+</ul>
+</li>
+<li>Errors are correctly handled, i.e. your application does not panic if it encounters any unexpected situation. Use <code>anywhow</code> and the question-mark (<code>?</code>) operator to make error-bubbling concise. You can read about the <code>?</code>-operator here: <a href="https://doc.rust-lang.org/reference/expressions/operator-expr.html#the-question-mark-operator">https://doc.rust-lang.org/reference/expressions/operator-expr.html#the-question-mark-operator</a></li>
+<li>Logic concerning creating, storing, and loading quiz questions is defined in the library part of your crate.</li>
+<li>Functionality regarding user input (arg parsing, reading from stdin) is defined in the application code, not in your library.</li>
+<li>Logical units of your crate are divided up into modules.</li>
+</ul>
+<p>Before you start coding, make sure you've listed all open questions and found answers to them. You're also encouraged to draw a simple diagram of the module structure of your application, annotating each module with its responsibilities.</p>
+<h2 id="b3-fizzbuzz"><a class="header" href="#b3-fizzbuzz">B.3 FizzBuzz</a></h2>
+<p>In this exercise, you will practise writing a unit test, and use Rusts benchmarking functionality to help you optimize a <a href="https://en.wikipedia.org/wiki/Fizz_buzz">FizzBuzz</a> app. You will need <a href="https://bheisler.github.io/criterion.rs/book/cargo_criterion/cargo_criterion.html"><code>cargo-criterion</code></a>, a tool that runs benchmarks and creates nice reports. You can install it by running</p>
+<pre><code class="language-bash">cargo install cargo-criterion --version=1.1.0
+</code></pre>
+<h3 id="b3a-testing-fizz-buzz-"><a class="header" href="#b3a-testing-fizz-buzz-">B.3.A Testing Fizz Buzz ⭐</a></h3>
+<p>Open <code>exercises/B3-fizzbuzz/src/lib.rs</code>. Create a unit test that verifies the correctness of the <code>fizz_buzz</code> function. You can use the <a href="https://doc.rust-lang.org/std/macro.include_str.html"><code>include_str</code></a> macro to include <code>exercises/B/3-fizzbuzz/fizzbuzz.out</code> as a <code>&amp;str</code> into your binary. Each line of <code>fizzbuzz.out</code> contains the expected output of the <code>fizz_buzz</code> function given the line number as input. You can run the test with</p>
+<pre><code class="language-bash">cargo test
+</code></pre>
+<p>By default, Rusts test harness captures all output and discards it, If you like to debug your test code using print statements, you can run</p>
+<pre><code class="language-bash">cargo test -- --nocapture
+</code></pre>
+<p>to prevent the harness from capturing output.</p>
+<h3 id="b3b-benchmarking-fizz-buzz-"><a class="header" href="#b3b-benchmarking-fizz-buzz-">B.3.B Benchmarking Fizz Buzz ⭐⭐</a></h3>
+<p>You'll probably have noticed the <code>fizz_buzz</code> implementation is not very optimized. We will use <code>criterion</code> to help us benchmark <code>fizz_buzz</code>. To run a benchmark, run the following command when in the <code>exercises/B/3-fizzbuzz/</code> directory:</p>
+<pre><code class="language-bash">cargo criterion
+</code></pre>
+<p>This command will run the benchmarks, and report some statistics to your terminal. It also generates HTML reports including graphs that you can find under <code>target/criterion/reports</code>. For instance, <code>target/criterion/reports/index.html</code> is a summary of all benchmark. Open it with your browser and have a look.</p>
+<p>Your job is to do some optimization of the <code>fizz_buzz</code> function, and use <code>cargo-criterion</code> to measure the impact of your changes. Don't be afraid to change the signature of <code>fizz_buzz</code>, if, for instance, you want to minimize the number of allocations done by this function. However, make sure that the function is able to correctly produce the output. How fast can you FizzBuzz?</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="module-c---concurrency--parallelism"><a class="header" href="#module-c---concurrency--parallelism">Module C - Concurrency &amp; Parallelism</a></h1>
+<p><a href="C-concurrency-parallelism//slides/C/">Slides</a> (or <a href="C-concurrency-parallelism//slides/C-concurrency-parallelism.pdf">pdf</a>)</p>
+<h2 id="c1-tf-idf-"><a class="header" href="#c1-tf-idf-">C.1 TF-IDF ★★</a></h2>
+<p>Follow the instructions in the comments of <code>excercises/C/1-tf-ifd/src/main.rs</code>!</p>
+<h2 id="c2-basic-mutex-"><a class="header" href="#c2-basic-mutex-">C.2 Basic Mutex ★★★</a></h2>
+<p>Follow the instructions in the comments of <code>excercises/C/2-mutex/src/main.rs</code>!</p>
+<h2 id="c3-advanced-mutex-bonus-"><a class="header" href="#c3-advanced-mutex-bonus-">C.3 Advanced Mutex (bonus) ★★★★</a></h2>
+<p>The basic mutex performs a spin-loop while waiting to take the lock. That is terribly inefficient. Luckily, your operating system is able to wait until the lock becomes available, and will just put the thread to sleep in the meantime. </p>
+<p>This functionality is exposed in the <a href="https://docs.rs/atomic-wait/latest/atomic_wait/index.html">atomic_wait crate</a>. The <a href="https://marabos.nl/atomics/building-locks.html#mutex">section on implementing a mutex</a> from &quot;Rust Atomics and Locks&quot; explains how to use it.</p>
+<ul>
+<li>change the <code>AtomicBool</code> for a <code>AtomicU32</code></li>
+<li>implement <code>lock</code>. Be careful about spurious wakes: after <code>wait</code> returns, you must stil check the condition</li>
+<li>implement unlocking (<code>Drop for MutexGuard&lt;T&gt;</code> using <code>wake_one</code>.</li>
+</ul>
+<p>The linked chapter goes on to further optimize the mutex. This really is no longer part of a 101 course, but we won't stop you if you try (and will still try to help if you get stuck)!</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="module-d---trait-objects-and-rust-patterns"><a class="header" href="#module-d---trait-objects-and-rust-patterns">Module D - Trait objects and Rust patterns</a></h1>
+<p><a href="D-trait-objects-patterns//slides/D/">Slides</a> (or <a href="D-trait-objects-patterns//slides/D-trait-objects-patterns.pdf">pdf</a>)</p>
+<h2 id="d1-bsn"><a class="header" href="#d1-bsn">D.1 BSN</a></h2>
+<p>The BSN (Burgerservicennummer) is a Dutch personal identification number that somewhat resembles the US Social Security Number in its use.
+The BSN is a number that adheres to some rules.
+In this exercise, we will create a Rust type that guarantees that it represents a valid BSN.</p>
+<h2 id="d1a-newtype-"><a class="header" href="#d1a-newtype-">D.1.A Newtype ⭐⭐</a></h2>
+<p>In this part we will implement the BSN number validation, as well as a fallible constructor.</p>
+<p>A BSN is valid if and only if it matches the following criteria:</p>
+<ul>
+<li>It consists of 8 or 9 digits</li>
+<li>It passes a variant of the 11 check (<a href="https://nl.wikipedia.org/wiki/Elfproef">elfproef (Dutch)</a>):</li>
+</ul>
+<p>For 8-digit BSNs, we concatenate a <code>0</code> to the end. The digits of the number are labeled as  <code>ABCDEFGHI</code>.
+For example: for BSN <code>123456789</code>, <code>A = 1</code>, <code>B = 2</code>, <code>C = 3</code>, and so forth until <code>I</code>.</p>
+<p>Then, <code>(9 × A) + (8 × B) + (7 × C) + (6 × D) + (5 × E) + (4 × F) + (3 × G) + (2 × H) + (-1 × I)</code> must be a multiple of 11</p>
+<p>Open <code>exercises/D/1-bsn</code> in your editor. You'll find the scaffolding code there, along with two files:</p>
+<ul>
+<li><code>valid_bsns.in</code> containing a list of valid BSNs</li>
+<li><code>invalid_bsns.in</code> containing a list of invalid BSNs.</li>
+</ul>
+<p>In <code>src/lib.rs</code>, implement <code>Bsn::validate</code> to make the <code>test_validation</code> test case pass.
+Implement <code>Bsn::try_from_string</code> as well.
+To try just the <code>test_validation</code> test case, run:</p>
+<pre><code>cargo test -- test_validation
+</code></pre>
+<h2 id="d1a-visitor-with-serde-"><a class="header" href="#d1a-visitor-with-serde-">D.1.A Visitor with Serde ⭐⭐⭐</a></h2>
+<p>Next up is implementing the <code>serde::Serialize</code> and <code>serde::Deserialize</code> traits, to support serialization and deserialization of <code>Bsn</code>s.
+In this case, simply deriving those traits won't suffice, as we want to represent the <code>BSN</code> as a string after serialization.
+We also want to deserialize strings directly into <code>Bsn</code>s, while still upholding the guarantee that an instantiated <code>Bsn</code> represents a valid BSN.
+Therefore, you have to incorporate <code>Bsn::validate</code> into the implementation of the deserialization visitor.</p>
+<p>More information on implementing the traits:</p>
+<ul>
+<li><code>serde::Serialize</code>: https://serde.rs/impl-serialize.html</li>
+<li><code>serde::Deserialize</code>: https://serde.rs/impl-deserialize.html</li>
+</ul>
+<p>If everything works out, all tests should pass.</p>
+<h2 id="d2-typestate-3d-printer-"><a class="header" href="#d2-typestate-3d-printer-">D.2 Typestate 3D Printer ⭐⭐</a></h2>
+<p>An imaginary 3D printer uses filament to create all kinds of things.
+Its states can be represented with the following state diagram:</p>
+<pre><code>                   ┌─────────────────┐
+                   │                 │
+                   │                 │   Reset
+                   │      Idle       │◄────────────────────────────┐
+         ┌────────►│                 │                             │
+         │         │                 │                             │
+         │         │                 │                             │
+         │         └────────┬────────┘                             │
+         │                  │                                      │
+         │                  │                                      │
+         │                  │ Start                                │
+         │                  │                                      │
+         │                  ▼                                      │
+         │         ┌─────────────────┐                    ┌────────┴────────┐
+         │         │                 │                    │                 │
+         │         │                 │   Out of filament  │                 │
+Product  │         │    Printing     ├──────────────────► │      Error      │
+retrieved│         │                 │                    │                 │
+         │         │                 │                    │                 │
+         │         │                 │                    │                 │
+         │         └────────┬────────┘                    └─────────────────┘
+         │                  │
+         │                  │ Product ready
+         │                  │
+         │                  ▼
+         │         ┌─────────────────┐
+         │         │                 │
+         │         │                 │
+         │         │  Product Ready  │
+         └─────────┤                 │
+                   │                 │
+                   │                 │
+                   └─────────────────┘
+</code></pre>
+<p>The printer boots in Idle state. Once a job is started, the printer enters the Printing state.
+In printing state, it keeps on printing the product until either it is ready or the printer is out of filament.
+If the printer is out of filament, the printer goes into Error state, which it can only come out of upon device reset.
+If the product is ready, the printer goes to Product Ready state, and once the user retrieves the product, the printer goes back to Idle.</p>
+<p>The printer can be represented in Rust using the typestate pattern as described during the lecture. This allows you to write a simple 3D printer driver. In <code>exercises/D/2-3d-printer</code>, a <code>Printer3D</code> struct is instantiated. Add methods corresponding to each of the traits, that simulate the state transitions by printing the state. A method simulating checking if the printer is out of filament is provided.</p>
+<p>Of course, to make the printer more realistic, you can add more states and transitions.</p>
+<h1 id="d3-dynamic-deserialization-"><a class="header" href="#d3-dynamic-deserialization-">D.3 Dynamic deserialization ⭐⭐</a></h1>
+<p>In this exercise, you'll work with dynamic dispatch to deserialize with <code>serde_json</code> or <code>serde_yaml</code>, depending on the file extension. The starter code is in <code>exercises/D/3-config-reader</code>. Fix the todo's in there.</p>
+<p>To run the program, you'll need to pass the file to deserialize to the binary, not to Cargo. To do this, run</p>
+<pre><code class="language-bash">cargo run -- &lt;FILE_PATH&gt;
+</code></pre>
+<p>Deserializing both <code>config.json</code> and <code>config.yml</code> should result in the <code>Config</code> being printed correctly.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="module-e---async-and-rust-for-web"><a class="header" href="#module-e---async-and-rust-for-web">Module E - Async and Rust for Web</a></h1>
+<p><a href="E-async-web//slides/E/">Slides</a> (or <a href="E-async-web//slides/E-async-web.pdf">pdf</a>)</p>
+<h2 id="e1-channels"><a class="header" href="#e1-channels">E.1 Channels</a></h2>
+<p>Channels are a very useful way to communicate between threads and <code>async</code> tasks. They allow for decoupling your application into many tasks. You'll see how that can come in nicely in exercise E.2. In this exercise, you'll implement two variants: a oneshot channel and a multi-producer-single-consumer (MPSC) channel. If you're up for a challenge, you can write a broadcast channel as well.</p>
+<h3 id="e1a-mpsc-channel-"><a class="header" href="#e1a-mpsc-channel-">E.1.A MPSC channel ⭐⭐</a></h3>
+<p>A multi-producer-single-consumer (MPSC) channel is a channel that allows for multiple <code>Sender</code>s to send many messages to a single <code>Receiver</code>.</p>
+<p>Open <code>exercises/E/1-channels</code> in your editor. You'll find the scaffolding code there. For part A, you'll work in <code>src/mpsc.rs</code>. Fix the <code>todo!</code>s in that file in order to make the test pass. To test, run:</p>
+<pre><code class="language-bash">cargo test -- mpsc
+</code></pre>
+<p>If your tests are stuck, probably either your implementation does not use the <code>Waker</code> correctly, or it returns <code>Poll::Pending</code> where it shouldn't.</p>
+<h3 id="e1b-oneshot-channel-"><a class="header" href="#e1b-oneshot-channel-">E.1.B Oneshot channel ⭐⭐⭐</a></h3>
+<p>A oneshot is a channel that allows for one <code>Sender</code> to send exactly one message to a single <code>Receiver</code>.</p>
+<p>For part B, you'll work in <code>src/broadcast.rs</code>. This time, you'll have to do more yourself. Intended behavior:</p>
+<ul>
+<li><code>Receiver</code> implements <code>Future</code>. It returns <code>Poll::Ready(Ok(T))</code> if <code>inner.data</code> is <code>Some(T)</code>, <code>Poll::Pending</code> if <code>inner.data</code> is <code>None</code>, and <code>Poll::Ready(Err(Error::SenderDropped))</code> if the <code>Sender</code> was dropped.</li>
+<li><code>Receiver::poll</code> replaces <code>inner.waker</code> with the one from the <code>Context</code>.</li>
+<li><code>Sender</code> consumes <code>self</code> on send, allowing the it to be used no more than once. Sending sets <code>inner.data</code> to <code>Some(T)</code>. It returns <code>Err(Error::ReceiverDropped(T))</code> if the <code>Receiver</code> was dropped before sending.</li>
+<li><code>Sender::send</code> wakes <code>inner.waker</code> after putting the data in <code>inner.data</code></li>
+<li>Once the <code>Sender</code> is dropped, it marks itself dropped with <code>inner</code></li>
+<li>Once the <code>Receiver</code> is dropped, it marks itself dropped with <code>inner</code></li>
+<li>Upon succesfully sending the message, the consumed <code>Sender</code> is not marked as dropped. Instead <code>std::mem::forget</code> is used to avoid running the destructor.</li>
+</ul>
+<p>To test, run:</p>
+<pre><code class="language-bash">cargo test -- broadcast
+</code></pre>
+<h3 id="e1b-broadcast-channel-bonus-"><a class="header" href="#e1b-broadcast-channel-bonus-">E.1.B Broadcast channel (bonus) ⭐⭐⭐⭐</a></h3>
+<p>A Broadcast channel is a channel that supports multiple senders and receivers. Each message that is sent by any of the senders, is received by every receiver. Therefore, the implemenentation has to hold on to messages until they have been sent to every receiver that has not yet been dropped. This furthermore implies that the message shoud be cloned upon broadcasting.</p>
+<p>For this bonus exercise, we provide no scaffolding. Take your inspiration from the <code>mpsc</code> and <code>oneshot</code> modules, and implement a <code>broadcast</code> module yourself.</p>
+<h2 id="e2-chat-app"><a class="header" href="#e2-chat-app">E.2 Chat app</a></h2>
+<p>In this exercise, you'll write a simple chat server and client based on <a href="https://lib.rs/crates/tokio">Tokio</a>. Open <code>exercises/E/2-chat</code> in your editor. The project contains a <code>lib.rs</code> file, in which a type <code>Message</code> resides. This <code>Message</code> defines the data the chat server and clients use to communicate.</p>
+<h3 id="e2a-server-"><a class="header" href="#e2a-server-">E.2.A Server ⭐⭐⭐</a></h3>
+<p>The chat server, which resides in <code>src/bin/server.rs</code> listens for incoming TCP connections on port 8000, and spawns two tasks (futures):</p>
+<ul>
+<li><code>handle_incoming</code>: reads lines coming in from the TCP connection. It reads the username the client provides, and broadcasts incoming <code>Messages</code>, possibly after some modification.</li>
+<li><code>handle_outgoing</code>: sends messages that were broadcasted by the <code>handle_incoming</code> tasks to the client over TCP.</li>
+</ul>
+<p>Both <code>handle_incoming</code> and <code>handle_outgoing</code> contain a number to <code>todo</code>s. Fix them.</p>
+<p>To start the server, run</p>
+<pre><code class="language-bash">cargo run --bin server
+</code></pre>
+<h3 id="e2b-client-"><a class="header" href="#e2b-client-">E.2.B Client ⭐⭐</a></h3>
+<p>The chat client, residing in <code>src/bin/client.rs</code> contains some todo's as well. Fix them to allow for registration and sending <code>Message</code>s to the server.</p>
+<p>To start the client, run</p>
+<pre><code class="language-bash">cargo run --bin client
+</code></pre>
+<p>If everything works well, you should be able to run multiple clients and see messages sent from each client in every other.</p>
+<h2 id="e3-pastebin-"><a class="header" href="#e3-pastebin-">E.3 Pastebin ⭐⭐⭐</a></h2>
+<p>This exercise is about writing a simple <a href="https://en.wikipedia.org/wiki/Pastebin">pastebin</a> web server. Like the quizzer app, you will need to set up the project yourself. This webserver will be powered by <a href="https://lib.rs/crates/axum"><code>axum</code></a>.</p>
+<ul>
+<li>Data is kept in memory. Bonus if you use a database or <code>sqlite</code>, but first make the app function properly without.</li>
+<li>Expose a route to which a POST request can be sent, that accepts some plain text, and stores it along with a freshly generated UUID. The UUID is sent in the response. You can use the <a href="https://docs.rs/uuid/latest/uuid/"><code>uuid</code> crate</a> to generate UUIDs.</li>
+<li>Expose a route to which a GET request can be sent, that accepts a UUID and returns the plain text corresponding to the UUID, or a 404 error if it doesn't exist.</li>
+<li>Expose a route to which a DELETE request can be sent, that accepts a UUID and deletes the plain text corresonding to that UUID.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="module-f---safe-and-unsafe-rust"><a class="header" href="#module-f---safe-and-unsafe-rust">Module F - Safe and Unsafe rust</a></h1>
+<p><a href="F-safe-unsafe//slides/F/">Slides</a> (or <a href="F-safe-unsafe//slides/F-safe-unsafe-rust.pdf">pdf</a>)</p>
+<h2 id="c1-linked-list-"><a class="header" href="#c1-linked-list-">C.1 Linked List ★★★</a></h2>
+<p>Follow the instructions in the comments of <code>exercises/F/1-linked-list/src/bin/unsafe.rs</code>!</p>
+<h2 id="c2-execve-"><a class="header" href="#c2-execve-">C.2 Execve ★★★</a></h2>
+<p>Follow the instructions in <code>exercises/F/2-execve/README.md</code> and implement in <code>exercises/F/2-execve/src/main.rs</code>!</p>
+<h2 id="c3-tagged-union-"><a class="header" href="#c3-tagged-union-">C.3 Tagged union ★★★</a></h2>
+<p>Follow the instructions in the comments of <code>exercises/F/3-tagged-union/src/main.rs</code>!</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="module-g---foreign-function-interface"><a class="header" href="#module-g---foreign-function-interface">Module G - Foreign Function Interface</a></h1>
+<p><a href="G-ffi//slides/G/">Slides</a> (or <a href="G-ffi//slides/G-ffi.pdf">pdf</a>)</p>
+<h2 id="g1-crc-in-c-"><a class="header" href="#g1-crc-in-c-">G.1 CRC in C ★★★</a></h2>
+<p>Use a CRC checksum function written in C in a Rust program</p>
+<p>Follow the instructions <code>exercises/G/1-crc-in-c/README.md</code>!</p>
+<h2 id="g2-crc-in-rust-"><a class="header" href="#g2-crc-in-rust-">G.2 CRC in Rust ★★★</a></h2>
+<p>Use a CRC checksum function written in Rust in a C program</p>
+<p>Follow the instructions <code>exercises/G/2-crc-in-rust/README.md</code>!</p>
+<h2 id="g3-bindgen-"><a class="header" href="#g3-bindgen-">G.3 Bindgen ★★★</a></h2>
+<p>Use <code>cargo bindgen</code> to generate the FFI bindings. Bindgen will look at a C header file, and generate rust functions, types and constants based on the C definitions.</p>
+<p>But the generated code is ugly and non-idiomatic. To wrap a C library properly, good API design and documentation is needed. </p>
+<p>Follow the instructions <code>exercises/G/3-tweetnacl-bindgen/README.md</code>!</p>
+<h2 id="g4-pyo3-"><a class="header" href="#g4-pyo3-">G.4 PyO3 ★★★</a></h2>
+<p>Write a custom python extension using PyO3.</p>
+<p>Python is a convenient and popular language, but it is not fast. By writing complex logic in faster languages, you can get the best of both worlds. PyO3 makes it extremely easy to write and distribute python extensions written in Rust.</p>
+<p>Follow the instructions <code>exercises/G/4-pyo3/README.md</code>!</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="module-p---final-project"><a class="header" href="#module-p---final-project">Module P - Final project</a></h1>
+<p>It is time to submit a proposal for the final project.</p>
+<ul>
+<li>Form groups of 2 or 3 people. <em>Working solo is not permitted</em>.</li>
+<li>Build a small Rust project yourselves</li>
+<li>Up to 2 groups can work on the same topic</li>
+</ul>
+<h2 id="proposal"><a class="header" href="#proposal">Proposal</a></h2>
+<p>The proposal needs to be submitted by <em>30th of March, 2023</em> by opening a Github repo, placing your proposal there, and either making it public or granting access to <a href="https://github.com/hdoordt/"><code>@hdoordt</code></a>. Then, please send Henk a link to the repository via Discord so we know where to find it.</p>
+<p>The proposal must contain the following sections:</p>
+<ul>
+<li>Your names and Discord handles used in the Rust 101 Discord server</li>
+<li>Introduction to your idea. What general problem does it solve? What do you hope to learn?</li>
+<li>Requirements in brief. Just some bullet points on what your application or library should be able to do in order for the project to be deemed successful. Half a page maximum.</li>
+<li>The dependencies you want to use (use <a href="https://lib.rs">https://lib.rs</a> to discover crates)</li>
+<li>Optional: A rudimentary diagram of the architecture</li>
+</ul>
+<p>Of course, if you want to discuss your idea before handing in your proposal, or if you have any other questions, please reach out via Discord.</p>
+<p>Any reparations to the proposals must be handed in on the <em>6th of April 2023</em></p>
+<h2 id="final-product"><a class="header" href="#final-product">Final product</a></h2>
+<p>At the end of the project following will be required (deadline is the <em>4th of May, 2023</em>)</p>
+<ul>
+<li>The source of your project (GitHub)</li>
+<li>A live 10 minute presentation, including a <em>short</em> demonstration (and an additional 2 minutes for questions) during the final lecture</li>
+<li>A small report on what you did (3 pages max). It contains the following sections:
+<ul>
+<li>Introduction to your idea</li>
+<li>Requirements in more detail (not too detailed, though)</li>
+<li>Design diagram. Keep it high-level</li>
+<li>Design choices. What choices did you make, what were alternatives, and why did you choose the way you did?</li>
+<li>Dependencies and what they're used for</li>
+<li>Evaluation. What went well? What went not so well? How does implmementing a bigger project in Rust feel compared to other languages?</li>
+</ul>
+</li>
+</ul>
+<h2 id="project-suggestions"><a class="header" href="#project-suggestions">Project suggestions</a></h2>
+<p>You are encouraged to suggest your own project, here are some suggestions. We will add more ideas as they come up.</p>
+<ul>
+<li>Use a popular crate to build something
+<ul>
+<li>tokio (network applications)</li>
+<li>bitvec (lowlevel binary protocols)</li>
+<li>bevy (games)</li>
+<li>a serializer/deserializer using Serde</li>
+<li>RTIC or Embassy (embedded applications)</li>
+</ul>
+</li>
+<li>Build a GUI application (<a href="https://www.areweguiyet.com/">https://www.areweguiyet.com/</a>)</li>
+<li>Build Rust markdown-to-slide-deck renderer, as an alternative to sli.dev that we've been using</li>
+<li>Implement a more complex data structure
+<ul>
+<li>implement and benchmark a doubly linked list</li>
+<li>benchmark the ntpd-rs ipfilter <a href="https://github.com/pendulum-project/ntpd-rs/blob/main/ntp-daemon/src/ipfilter.rs">https://github.com/pendulum-project/ntpd-rs/blob/main/ntp-daemon/src/ipfilter.rs</a></li>
+<li>add &quot;seamless slices&quot; to the Rust implementation of <code>RocList</code> (ask Folkert)</li>
+<li>Image renderer and manipulator (PNG, SVG)</li>
+<li>Implement a simple HTTP1 static file server on raw TCP sockets</li>
+</ul>
+</li>
+<li>Programming languages
+<ul>
+<li>an interpreter for False (<a href="https://strlen.com/false-language/">https://strlen.com/false-language/</a>)</li>
+<li>an interpreter for (a subset of) webassembly</li>
+<li>contribute to Roc (Folkert is a maintainer and will help you)</li>
+<li>An implementation of Lox (<a href="https://craftinginterpreters.com/">https://craftinginterpreters.com/</a>)</li>
+</ul>
+</li>
+<li>Develop a simple OS (<a href="https://os.phil-opp.com/">https://os.phil-opp.com/</a>)</li>
+<li>Make an open source contribution
+NOTE: make sure your contribution has a good chance of being accepted; don't just create extra work for project maintainers 
+<ul>
+<li>update inkwell's kaleidoscope example so it also works with llvm 15 <a href="https://github.com/TheDan64/inkwell/blob/master/examples/kaleidoscope/main.rs#L199">https://github.com/TheDan64/inkwell/blob/master/examples/kaleidoscope/main.rs#L199</a></li>
+</ul>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </div>
+    </body>
+</html>
